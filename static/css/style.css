@@ -1,0 +1,190 @@
+/* Configurações básicas */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #3d3d3d;
+    color: #f1f1f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+h1, h2 {
+    color: #f1f1f1;
+}
+
+.container {
+    width: 80%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #3d3d3d;
+    border-radius: 8px;
+}
+
+/* Estilos para a Galeria */
+.galeria {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; /* Espaçamento entre os cards */
+    justify-content: center; /* Centraliza os cards na galeria */
+}
+
+.filme-card {
+    width: 220px; /* Define uma largura fixa para os cards */
+    background-color: #3d3d3d;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.397);
+    text-align: center;
+    padding: 15px;
+    transition: box-shadow 0.3s; /* Transição para efeito de hover */
+    margin: 10px; /* Adiciona espaço entre os cards */
+}
+
+.filme-card:hover {
+    box-shadow: 0 6px 12px rgba(255, 255, 255, 0.250); /* Efeito de hover */
+}
+
+.filme-card img {
+    width: 100%; /* Ajusta a imagem da capa para ocupar todo o espaço do card */
+    height: auto; /* Mantém a proporção da imagem */
+    border-radius: 8px; /* Bordas arredondadas */
+    margin-bottom: 10px; /* Espaçamento abaixo da imagem */
+}
+
+.filme-card h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.filme-card p {
+    font-size: 14px;
+    color: #f1f1f1;
+    margin-bottom: 15px;
+    text-align: justify;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    line-height: 1.5; 
+    height: 4.5em;
+}
+
+/* Formulário de Administração */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: left;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    background-color: #3d3d3d;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.397);
+}
+
+form label {
+    font-weight: bold;
+    margin-top: 10px;
+    width: 100%;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.remove {
+    box-shadow: none;
+}
+
+button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 4px;
+    transition: background-color 0.3s; /* Transição suave */
+}
+
+button[type="submit"] {
+    background-color: red; /* Para o botão de remover */
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button[type="submit"]:hover {
+    background-color: darkred; /* Efeito de hover para o botão de remover */
+}
+
+.login-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.login-button:hover {
+    background-color: #0056b3;
+}
+
+/* Página de Filmes */
+.filme-page {
+    text-align: center;
+    padding: 20px;
+}
+
+.filme-page video {
+    width: 100%;
+    max-width: 800px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.filme-page p {
+    text-align: justify;
+    font-size: 16px;
+    margin-top: 15px;
+}
+
+/* Links de navegação */
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.back-link:hover {
+    color: #0056b3;
+}
+
+/* Estilo para mensagens de erro */
+.error {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+}

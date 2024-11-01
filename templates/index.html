@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Filmes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <header>
+        <h1>Catálogo de Filmes</h1>
+    </header>
+
+    <div class="container">
+        <div class="galeria">
+            {% for filme in filmes %}
+                <div class="filme-card">
+                    {% if filme['capa'] %}
+                        <img src="{{ url_for('static', filename='movies/capas/' + filme['capa']) }}" alt="{{ filme['titulo'] }}" class="filme-capa">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='movies/capas/default.jpg') }}" alt="{{ filme['titulo'] }}" class="filme-capa">
+                    {% endif %}
+                    <h2>{{ filme['titulo'] }}</h2>
+                    <p>{{ filme['descricao'] }}</p>
+                    <a class="login-button" href="{{ url_for('filme', filme_id=filme['id']) }}" class="ver-filme">Ver Filme</a>
+                </div>
+            {% endfor %}
+        </div>
+        {% if not session.get('logged_in') %}
+            <a href="{{ url_for('login') }}" class="login-button">Login</a>
+        {% else %}
+            <a href="{{ url_for('logout') }}" class="login-button">Logout</a>
+        {% endif %}
+    </div>
+</body>
+</html>

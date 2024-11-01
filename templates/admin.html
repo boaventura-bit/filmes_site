@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Gerenciar Filmes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Gerenciar Filmes</h1>
+        
+        <h2>Adicionar Novo Filme</h2>
+        <form action="{{ url_for('add_filme') }}" method="post" enctype="multipart/form-data">
+            <label for="titulo">Título:</label>
+            <input type="text" name="titulo" id="titulo" required>
+            
+            <label for="descricao">Descrição:</label>
+            <textarea name="descricao" id="descricao" required></textarea>
+            
+            <label for="arquivo">Arquivo de Filme:</label>
+            <input type="file" name="arquivo" id="arquivo" accept="video/mp4" required>
+            
+            <label for="capa">Capa do Filme:</label>
+            <input type="file" name="capa" id="capa" accept="image/*" required> <!-- Novo campo para a capa -->
+            
+            <button type="submit">Enviar Filme</button>
+        </form><br><br>
+
+        <h2>Filmes Existentes</h2>
+        <div class="galeria">
+            {% for filme in filmes %}
+                <div class="filme-card">
+                    <h2>{{ filme['titulo'] }}</h2>
+                    <p>{{ filme['descricao'] }}</p>
+                    <a class="login-button" href="{{ url_for('filme', filme_id=filme['id']) }}">Assistir</a>
+                    <form class="remove" action="{{ url_for('remove_filme', filme_id=filme['id']) }}" method="POST">
+                        <button type="submit">Remover</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+        <br>
+        <a href="{{ url_for('logout') }}" class="back-link">Logout</a>
+    </div>
+</body>
+</html>

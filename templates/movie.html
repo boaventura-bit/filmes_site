@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ filme['titulo'] }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="filme-page">
+    <div class="container">
+        <h1>{{ filme['titulo'] }}</h1>
+        <video controls width="600">
+            <source src="{{ url_for('static', filename='movies/' + filme['arquivo']) }}" type="video/mp4">
+            Seu navegador não suporta o elemento de vídeo.
+        </video>
+        <br>
+        <p>{{ filme['descricao'] }}</p><br><br>
+        <a href="{{ url_for('static', filename='movies/' + filme['arquivo']) }}" class="login-button" download>Baixar</a>
+    </div>
+</body>
+</html>
