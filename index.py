@@ -164,4 +164,6 @@ def filme(filme_id):
     return render_template('movie.html', filme=filme)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Usa o valor de PORT do Heroku ou 5000 como padrão
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)  # Executa a aplicação no host 0.0.0.0 e na porta correta
