@@ -1,23 +1,23 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_session import Session
-import psycopg2  # Biblioteca para conectar ao PostgreSQL (CockroachDB)
+import psycopg2
 import os
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/movies'
-app.config['COVER_FOLDER'] = 'static/capas'  # Adicionada a pasta de capas
-app.config['SECRET_KEY'] = 'Kant22756700*'  # Altere para uma chave forte
+app.config['COVER_FOLDER'] = 'static/capas'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'Kant22756700*')  # Variável de ambiente
 app.config['SESSION_TYPE'] = 'filesystem'
 
 Session(app)
 
 # Configurações do banco de dados CockroachDB
-DB_HOST = "leaner-bunny-2865.jxf.gcp-southamerica-east1.cockroachlabs.cloud"  # Substitua pelo seu host do CockroachDB
-DB_PORT = "26257"  # Porta padrão do CockroachDB
-DB_NAME = "stream"  # Nome do seu banco de dados
-DB_USER = "boaventura_bit"  # Substitua pelo seu usuário
-DB_PASSWORD = "OlPY4AIfr5bClanV2XfF8g"  # Substitua pela sua senha
+DB_HOST = os.environ.get('DB_HOST', "leaner-bunny-2865.jxf.gcp-southamerica-east1.cockroachlabs.cloud")
+DB_PORT = os.environ.get('DB_PORT', "26257")
+DB_NAME = os.environ.get('DB_NAME', "stream")
+DB_USER = os.environ.get('DB_USER', "boaventura_bit")
+DB_PASSWORD = os.environ.get('DB_PASSWORD', "OlPY4AIfr5bClanV2XfF8g")
 
 def get_db_connection():
     try:
@@ -26,36 +26,35 @@ def get_db_connection():
             port=DB_PORT,
             dbname=DB_NAME,
             user=DB_USER,
-            password=DB_PASSWORD
+            password=DB_PASSWORD,
+            sslmode='require'  # Ajuste conforme necessário
         )
         return conn
     except Exception as e:
-        print(f"Erro ao conectar ao banco de dados: {e}")  # Imprime o erro de conexão
+        print(f"Erro ao conectar ao banco de dados: {e}")
         return None
 
 @app.route('/')
 def index():
-    conn = get_db_connection()
-    if conn is None:
+    filmes = fetch_filmes()
+    if filmes is None:
         return "Erro ao conectar ao banco de dados.", 500
-    
-    try:
-        cursor = conn.cursor()  # Crie um cursor válido
-        cursor.execute('SELECT * FROM filmes')  # Execute a consulta
-        filmes = cursor.fetchall()  # Obtenha todos os resultados
-        cursor.close()  # Feche o cursor
-    except Exception as e:
-        return f"Erro ao buscar filmes: {e}", 500
-    finally:
-        conn.close()  # Garante que a conexão será fechada
 
-    return render_template('index.html', filmes=filmes)  # Renderiza a galeria de filmes
+    return render_template('index.html', filmes=filmes)
+
+def fetch_filmes():
+    with get_db_connection() as conn:
+        if conn is None:
+            return None
+        with conn.cursor() as cursor:
+            cursor.execute('SELECT * FROM filmes')
+            return cursor.fetchall()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         senha = request.form['senha']
-        if senha == 'Kant22756700*':
+        if senha == app.config['SECRET_KEY']:
             session['logged_in'] = True
             return redirect(url_for('admin'))
         else:
@@ -73,18 +72,9 @@ def admin():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    conn = get_db_connection()
-    if conn is None:
+    filmes = fetch_filmes()
+    if filmes is None:
         return "Erro ao conectar ao banco de dados.", 500
-
-    try:
-        cursor = conn.cursor()  # Crie um cursor válido
-        cursor.execute('SELECT * FROM filmes')  # Execute a consulta
-        filmes = cursor.fetchall()  # Obtenha todos os resultados
-    except Exception as e:
-        return f"Erro ao buscar filmes: {e}", 500
-    finally:
-        conn.close()  # Garante que a conexão será fechada
 
     return render_template('admin.html', filmes=filmes)
 
@@ -104,21 +94,19 @@ def add_filme():
             arquivo.save(os.path.join(app.config['UPLOAD_FOLDER'], video_filename))
             
             capa_filename = secure_filename(capa.filename)
-            capa.save(os.path.join(app.config['COVER_FOLDER'], capa_filename))  # Salvar a capa no diretório específico
-            
-            conn = get_db_connection()
-            if conn is None:
-                return "Erro ao conectar ao banco de dados.", 500
-            
-            cursor = conn.cursor()  # Crie um cursor válido
-            cursor.execute('INSERT INTO filmes (titulo, descricao, arquivo, capa) VALUES (%s, %s, %s, %s)',
-                           (titulo, descricao, video_filename, capa_filename))
-            conn.commit()
-            cursor.close()  # Feche o cursor após a inserção
+            capa.save(os.path.join(app.config['COVER_FOLDER'], capa_filename))
+
+            with get_db_connection() as conn:
+                if conn is None:
+                    return "Erro ao conectar ao banco de dados.", 500
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        'INSERT INTO filmes (titulo, descricao, arquivo, capa) VALUES (%s, %s, %s, %s)',
+                        (titulo, descricao, video_filename, capa_filename)
+                    )
+                    conn.commit()
         except Exception as e:
             return render_template('admin.html', error=f"Erro ao salvar o filme: {e}")
-        finally:
-            conn.close()  # Garante que a conexão será fechada
 
     return redirect(url_for('admin'))
 
@@ -127,19 +115,12 @@ def remove_filme(filme_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
 
-    conn = get_db_connection()
-    if conn is None:
-        return "Erro ao conectar ao banco de dados.", 500
-
-    try:
-        cursor = conn.cursor()  # Crie um cursor válido
-        cursor.execute('DELETE FROM filmes WHERE id = %s', (filme_id,))
-        conn.commit()
-        cursor.close()  # Feche o cursor após a exclusão
-    except Exception as e:
-        return f"Erro ao remover filme: {e}", 500
-    finally:
-        conn.close()  # Garante que a conexão será fechada
+    with get_db_connection() as conn:
+        if conn is None:
+            return "Erro ao conectar ao banco de dados.", 500
+        with conn.cursor() as cursor:
+            cursor.execute('DELETE FROM filmes WHERE id = %s', (filme_id,))
+            conn.commit()
 
     return redirect(url_for('admin'))
 
@@ -150,20 +131,18 @@ def filme(filme_id):
         return "Erro ao conectar ao banco de dados.", 500
 
     try:
-        cursor = conn.cursor()  # Crie um cursor válido
-        cursor.execute('SELECT * FROM filmes WHERE id = %s', (filme_id,))
-        filme = cursor.fetchone()  # Obtenha um único resultado
-        cursor.close()  # Feche o cursor
-        if filme is None:
-            return "Filme não encontrado!", 404
+        with conn.cursor() as cursor:
+            cursor.execute('SELECT * FROM filmes WHERE id = %s', (filme_id,))
+            filme = cursor.fetchone()
+            if filme is None:
+                return "Filme não encontrado!", 404
     except Exception as e:
         return f"Erro ao buscar filme: {e}", 500
     finally:
-        conn.close()  # Garante que a conexão será fechada
+        conn.close()
 
     return render_template('movie.html', filme=filme)
 
 if __name__ == '__main__':
-    # Usa o valor de PORT do Heroku ou 5000 como padrão
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)  # Executa a aplicação no host 0.0.0.0 e na porta correta
+    app.run(host='0.0.0.0', port=port)
