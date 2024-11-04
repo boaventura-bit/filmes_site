@@ -103,6 +103,3 @@ def filme(filme_id):
     if filme is None:
         return "Filme não encontrado!", 404
     return render_template('movie.html', filme=filme)
-
-if __name__ == '__main__':
-    app.run(debug=True)
