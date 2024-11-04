@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/movies'
 app.config['COVER_FOLDER'] = 'static/capas'  # Adicionada a pasta de capas
-app.config['SECRET_KEY'] = 'sua_chave_secreta_aqui'  # Altere para uma chave forte
+app.config['SECRET_KEY'] = 'Kant22756700*'  # Altere para uma chave forte
 app.config['SESSION_TYPE'] = 'filesystem'
 
 Session(app)
